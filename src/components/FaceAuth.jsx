@@ -1,343 +1,70 @@
-// // // // // // import React, { useRef, useEffect } from "react";
-// // // // // // import * as faceapi from "face-api.js";
-
-// // // // // // const FaceAuth = () => {
-// // // // // //   const videoRef = useRef(null);
-
-// // // // // //   // Load models
-// // // // // //   useEffect(() => {
-// // // // // //     const loadModels = async () => {
-// // // // // //       const MODEL_URL = "/models"; // public/models folder
-// // // // // //       await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-// // // // // //       await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-// // // // // //       await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
-// // // // // //       startVideo();
-// // // // // //     };
-
-// // // // // //     const startVideo = () => {
-// // // // // //       navigator.mediaDevices
-// // // // // //         .getUserMedia({ video: true })
-// // // // // //         .then((stream) => {
-// // // // // //           videoRef.current.srcObject = stream;
-// // // // // //         })
-// // // // // //         .catch((err) => console.error(err));
-// // // // // //     };
-
-// // // // // //     loadModels();
-// // // // // //   }, []);
-
-// // // // // //   const captureFace = async () => {
-// // // // // //     const detection = await faceapi
-// // // // // //       .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions())
-// // // // // //       .withFaceLandmarks()
-// // // // // //       .withFaceDescriptor();
-
-// // // // // //     if (!detection) throw new Error("No face detected");
-// // // // // //     return Array.from(detection.descriptor);
-// // // // // //   };
-
-// // // // // //   const handleRegister = async () => {
-// // // // // //     const username = prompt("Enter username:");
-// // // // // //     const email = prompt("Enter email:");
-
-// // // // // //     try {
-// // // // // //       const embedding = await captureFace();
-// // // // // //       const res = await fetch(
-// // // // // //         "http://localhost:5000/api/auth/register-embedding",
-// // // // // //         {
-// // // // // //           method: "POST",
-// // // // // //           headers: { "Content-Type": "application/json" },
-// // // // // //           body: JSON.stringify({ username, email, embedding }),
-// // // // // //         }
-// // // // // //       );
-// // // // // //       const data = await res.json();
-// // // // // //       alert(data.message || JSON.stringify(data));
-// // // // // //     } catch (err) {
-// // // // // //       alert(err.message);
-// // // // // //     }
-// // // // // //   };
-
-// // // // // //   const handleLogin = async () => {
-// // // // // //     try {
-// // // // // //       const embedding = await captureFace();
-// // // // // //       const res = await fetch(
-// // // // // //         "http://localhost:5000/api/auth/login-embedding",
-// // // // // //         {
-// // // // // //           method: "POST",
-// // // // // //           headers: { "Content-Type": "application/json" },
-// // // // // //           body: JSON.stringify({ embedding }),
-// // // // // //         }
-// // // // // //       );
-// // // // // //       const data = await res.json();
-// // // // // //       alert(data.message || JSON.stringify(data));
-// // // // // //     } catch (err) {
-// // // // // //       alert(err.message);
-// // // // // //     }
-// // // // // //   };
-
-// // // // // //   return (
-// // // // // //     <div className="flex flex-col items-center mt-10 space-y-5">
-// // // // // //       <video
-// // // // // //         ref={videoRef}
-// // // // // //         autoPlay
-// // // // // //         muted
-// // // // // //         className="border-2 border-gray-300 rounded-lg"
-// // // // // //         width="320"
-// // // // // //         height="240"
-// // // // // //       ></video>
-
-// // // // // //       <div className="space-x-4">
-// // // // // //         <button
-// // // // // //           onClick={handleRegister}
-// // // // // //           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-// // // // // //         >
-// // // // // //           Register
-// // // // // //         </button>
-// // // // // //         <button
-// // // // // //           onClick={handleLogin}
-// // // // // //           className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-// // // // // //         >
-// // // // // //           Login
-// // // // // //         </button>
-// // // // // //       </div>
-// // // // // //     </div>
-// // // // // //   );
-// // // // // // };
-
-// // // // // // export default FaceAuth;
-
-// // import React, { useRef, useState } from "react";
-
-// // const FaceAuth = () => {
-// //   const videoRef = useRef(null);
-// //   const [cameraStarted, setCameraStarted] = useState(false);
-// //   const [username, setUsername] = useState("");
-// //   const [email, setEmail] = useState("");
-// //   const [capturedPhoto, setCapturedPhoto] = useState(null);
-
-// //   // Start camera
-// //   const startVideo = async () => {
-// //     try {
-// //       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-// //       videoRef.current.srcObject = stream;
-// //       setCameraStarted(true);
-// //     } catch (err) {
-// //       console.error("Camera access denied:", err);
-// //       alert("Please allow camera access.");
-// //     }
-// //   };
-
-// //   // Capture photo as blob and set preview
-// //   const capturePhoto = () => {
-// //     if (!videoRef.current) throw new Error("Video not available");
-
-// //     const canvas = document.createElement("canvas");
-// //     canvas.width = videoRef.current.videoWidth || 320;
-// //     canvas.height = videoRef.current.videoHeight || 240;
-// //     const ctx = canvas.getContext("2d");
-// //     ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-
-// //     canvas.toBlob((blob) => {
-// //       setCapturedPhoto(URL.createObjectURL(blob)); // show preview
-// //       setPhotoBlob(blob); // save blob for sending
-// //     }, "image/jpeg");
-// //   };
-
-// //   const [photoBlob, setPhotoBlob] = useState(null);
-
-// //   // Handle registration
-// //   const handleRegister = async (e) => {
-// //     e.preventDefault();
-// //     if (!photoBlob) {
-// //       alert("Please capture your photo first!");
-// //       return;
-// //     }
-
-// //     try {
-// //       const formData = new FormData();
-// //       formData.append("username", username);
-// //       formData.append("email", email);
-// //       formData.append("photo", photoBlob, "face.jpg");
-
-// //       const res = await fetch("http://localhost:5000/api/auth/register", {
-// //         method: "POST",
-// //         body: formData,
-// //       });
-// //       const data = await res.json();
-// //       alert(data.message || JSON.stringify(data));
-// //     } catch (err) {
-// //       alert(err.message);
-// //     }
-// //   };
-
-// //   // Handle login
-// //   const handleLogin = async () => {
-// //     if (!photoBlob) {
-// //       alert("Please capture your photo first!");
-// //       return;
-// //     }
-
-// //     try {
-// //       const formData = new FormData();
-// //       formData.append("photo", photoBlob, "face.jpg");
-
-// //       const res = await fetch("http://localhost:5000/api/auth/login", {
-// //         method: "POST",
-// //         body: formData,
-// //       });
-// //       const data = await res.json();
-// //       alert(data.message || JSON.stringify(data));
-// //     } catch (err) {
-// //       alert(err.message);
-// //     }
-// //   };
-
-// //   return (
-// //     <div className="flex flex-col items-center mt-10 space-y-5">
-// //       <video
-// //         ref={videoRef}
-// //         autoPlay
-// //         muted
-// //         playsInline
-// //         width="320"
-// //         height="240"
-// //         className="border-2 border-gray-300 rounded-lg"
-// //       ></video>
-
-// //       {!cameraStarted ? (
-// //         <button
-// //           onClick={startVideo}
-// //           className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-// //         >
-// //           Start Camera
-// //         </button>
-// //       ) : (
-// //         <>
-// //           <form
-// //             onSubmit={handleRegister}
-// //             className="flex flex-col items-center space-y-3"
-// //           >
-// //             <input
-// //               type="text"
-// //               placeholder="Username"
-// //               value={username}
-// //               onChange={(e) => setUsername(e.target.value)}
-// //               className="border px-2 py-1 rounded w-64"
-// //               required
-// //             />
-// //             <input
-// //               type="email"
-// //               placeholder="Email"
-// //               value={email}
-// //               onChange={(e) => setEmail(e.target.value)}
-// //               className="border px-2 py-1 rounded w-64"
-// //               required
-// //             />
-// //             <button
-// //               type="button"
-// //               onClick={capturePhoto}
-// //               className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-// //             >
-// //               Capture Photo
-// //             </button>
-// //             {capturedPhoto && (
-// //               <img
-// //                 src={capturedPhoto}
-// //                 alt="Captured"
-// //                 className="w-64 h-48 object-cover border rounded"
-// //               />
-// //             )}
-// //             <div className="flex space-x-4">
-// //               <button
-// //                 type="submit"
-// //                 className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-// //               >
-// //                 Register
-// //               </button>
-// //               <button
-// //                 type="button"
-// //                 onClick={handleLogin}
-// //                 className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-// //               >
-// //                 Login
-// //               </button>
-// //             </div>
-// //           </form>
-// //         </>
-// //       )}
-// //     </div>
-// //   );
-// // };
-
-// // export default FaceAuth;
-
 // import React, { useRef, useState } from "react";
 
 // const FaceAuth = () => {
+//   // State to manage the authentication mode: 'register' or 'login'
+//   const [authMode, setAuthMode] = useState("register");
+
+//   // State and refs for camera and photo capture
 //   const videoRef = useRef(null);
 //   const [cameraStarted, setCameraStarted] = useState(false);
-//   const [username, setUsername] = useState("");
-//   const [email, setEmail] = useState("");
 //   const [capturedPhoto, setCapturedPhoto] = useState(null);
 //   const [photoBlob, setPhotoBlob] = useState(null);
 
-//   // Start camera
+//   // State for form inputs and user session
+//   const [username, setUsername] = useState("");
+//   const [email, setEmail] = useState("");
+//   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+//   // State for UI messages (errors, success)
+//   const [message, setMessage] = useState("");
+
+//   // Start camera and clear any previous photo
 //   const startVideo = async () => {
+//     setMessage(""); // Clear any previous messages
 //     try {
+//       // Check for camera access
 //       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
 //       videoRef.current.srcObject = stream;
+//       videoRef.current.play();
 //       setCameraStarted(true);
+//       setCapturedPhoto(null); // Clear any previous photo when starting camera
+//       setPhotoBlob(null); // Clear the associated blob
 //     } catch (err) {
 //       console.error("Camera access denied:", err);
-//       alert("Please allow camera access.");
+//       setMessage("Please allow camera access to use this feature.");
 //     }
 //   };
 
-//   // Capture photo
+//   // Capture a still photo from the video stream
 //   const capturePhoto = () => {
-//     if (!videoRef.current) throw new Error("Video not available");
-
+//     const video = videoRef.current;
 //     const canvas = document.createElement("canvas");
-//     canvas.width = videoRef.current.videoWidth || 320;
-//     canvas.height = videoRef.current.videoHeight || 240;
+//     canvas.width = video.videoWidth || 320;
+//     canvas.height = video.videoHeight || 240;
 //     const ctx = canvas.getContext("2d");
-//     ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+//     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
+//     // Convert the canvas content to a Blob and set state
 //     canvas.toBlob((blob) => {
-//       setCapturedPhoto(URL.createObjectURL(blob)); // show preview
-//       setPhotoBlob(blob); // save blob for sending
+//       setCapturedPhoto(URL.createObjectURL(blob));
+//       setPhotoBlob(blob);
 //     }, "image/jpeg");
+
+//     // Stop the camera stream to save resources
+//     const stream = video.srcObject;
+//     if (stream) {
+//       stream.getTracks().forEach((track) => track.stop());
+//     }
+//     setCameraStarted(false);
 //   };
 
-//   // Handle registration
-//   const handleRegister = async (e) => {
+//   // Handle both registration and login with a single function
+//   const handleAuth = async (e) => {
 //     e.preventDefault();
+//     setMessage(""); // Clear message before new attempt
+
 //     if (!photoBlob) {
-//       alert("Please capture your photo first!");
-//       return;
-//     }
-
-//     try {
-//       const formData = new FormData();
-//       formData.append("username", username);
-//       formData.append("email", email);
-//       formData.append("photo", photoBlob, "face.jpg");
-
-//       const res = await fetch("http://localhost:5000/api/auth/register", {
-//         method: "POST",
-//         body: formData,
-//       });
-//       const data = await res.json();
-//       alert(data.message || JSON.stringify(data));
-//     } catch (err) {
-//       alert(err.message);
-//     }
-//   };
-
-//   // Handle login
-//   const handleLogin = async () => {
-//     if (!photoBlob) {
-//       alert("Please capture your photo first!");
+//       setMessage("Please capture your photo first!");
 //       return;
 //     }
 
@@ -345,179 +72,311 @@
 //       const formData = new FormData();
 //       formData.append("photo", photoBlob, "face.jpg");
 
-//       const res = await fetch("http://localhost:5000/api/auth/login", {
+//       let endpoint = "";
+
+//       // Conditional logic for handling 'register' vs 'login' mode
+//       if (authMode === "register") {
+//         if (!username || !email) {
+//           setMessage("Please enter username and email to register.");
+//           return;
+//         }
+//         formData.append("username", username);
+//         formData.append("email", email);
+//         endpoint = "http://localhost:5000/api/auth/register";
+//       } else {
+//         // authMode is 'login'
+//         endpoint = "http://localhost:5000/api/auth/login";
+//       }
+
+//       // Perform the API call
+//       const res = await fetch(endpoint, {
 //         method: "POST",
 //         body: formData,
 //       });
+
 //       const data = await res.json();
-//       alert(data.message || JSON.stringify(data));
+
+//       if (res.ok) {
+//         if (authMode === "register") {
+//           setMessage("Registration successful! You can now log in.");
+//           setAuthMode("login"); // Auto-switch to login tab
+//         } else {
+//           // authMode is 'login'
+//           setMessage(`Login successful! Welcome, ${data.username || "user"}!`);
+//           setIsLoggedIn(true); // "Redirect" to the home page view
+//         }
+//       } else {
+//         // Handle failed authentication
+//         setMessage(data.message || "Authentication failed.");
+//         setCapturedPhoto(null);
+//         setPhotoBlob(null);
+//         setCameraStarted(false);
+//       }
 //     } catch (err) {
-//       alert(err.message);
+//       setMessage("Error: " + err.message);
+//       setCapturedPhoto(null);
+//       setPhotoBlob(null);
+//       setCameraStarted(false);
 //     }
 //   };
 
-//   return (
-//     <div className="flex flex-col items-center mt-10 space-y-5">
-//       {/* Video / Captured Photo */}
-//       {capturedPhoto ? (
-//         <img
-//           src={capturedPhoto}
-//           alt="Captured"
-//           className="w-64 h-48 object-cover border rounded"
-//         />
-//       ) : (
-//         <video
-//           ref={videoRef}
-//           autoPlay
-//           muted
-//           playsInline
-//           width="320"
-//           height="240"
-//           className="border-2 border-gray-300 rounded-lg"
-//           style={{ display: cameraStarted ? "block" : "none" }}
-//         />
-//       )}
-
-//       {/* Start Camera Button */}
-//       {!cameraStarted && !capturedPhoto && (
-//         <button
-//           onClick={startVideo}
-//           className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-//         >
-//           Start Camera
-//         </button>
-//       )}
-
-//       {/* Capture Photo Button */}
-//       {cameraStarted && !capturedPhoto && (
-//         <button
-//           type="button"
-//           onClick={capturePhoto}
-//           className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 mt-2"
-//         >
-//           Capture Photo
-//         </button>
-//       )}
-
-//       {/* Form Inputs */}
-//       <form
-//         onSubmit={handleRegister}
-//         className="flex flex-col items-center space-y-3 mt-4"
-//       >
-//         <input
-//           type="text"
-//           placeholder="Username"
-//           value={username}
-//           onChange={(e) => setUsername(e.target.value)}
-//           className="border px-2 py-1 rounded w-64"
-//           required
-//         />
-//         <input
-//           type="email"
-//           placeholder="Email"
-//           value={email}
-//           onChange={(e) => setEmail(e.target.value)}
-//           className="border px-2 py-1 rounded w-64"
-//           required
-//         />
-
-//         {/* Action Buttons */}
-//         <div className="flex space-x-4 mt-2">
+//   // If the user is logged in, show a simple home page
+//   if (isLoggedIn) {
+//     return (
+//       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6 text-center">
+//         <div className="p-10 bg-white rounded-2xl shadow-xl space-y-4">
+//           <h2 className="text-4xl font-extrabold text-green-600">
+//             Successfully Logged In!
+//           </h2>
+//           <p className="text-xl text-gray-700">Welcome to your home page.</p>
 //           <button
-//             type="submit"
-//             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+//             onClick={() => setIsLoggedIn(false)}
+//             className="mt-6 px-6 py-2 rounded-lg font-bold text-white transition-colors duration-300 bg-red-500 hover:bg-red-600 shadow-md"
+//           >
+//             Logout
+//           </button>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   // Main Authentication UI
+//   return (
+//     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+//       <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-xl space-y-6">
+//         <h2 className="text-3xl font-extrabold text-center text-gray-800">
+//           Face Authentication
+//         </h2>
+
+//         {/* UI Message Display */}
+//         {message && (
+//           <div
+//             className={`p-3 text-center rounded-lg font-medium
+//             ${
+//               message.includes("successful")
+//                 ? "bg-green-100 text-green-700"
+//                 : "bg-red-100 text-red-700"
+//             }
+//           `}
+//           >
+//             {message}
+//           </div>
+//         )}
+
+//         {/* Mode Switcher Buttons */}
+//         <div className="flex justify-center space-x-2 bg-gray-200 p-1 rounded-full">
+//           <button
+//             onClick={() => {
+//               setAuthMode("register");
+//               setCameraStarted(false);
+//               setCapturedPhoto(null);
+//               setMessage("");
+//             }}
+//             className={`px-6 py-2 rounded-full font-semibold transition-colors duration-300 ${
+//               authMode === "register"
+//                 ? "bg-blue-600 text-white shadow-md"
+//                 : "bg-transparent text-gray-700 hover:bg-gray-300"
+//             }`}
 //           >
 //             Register
 //           </button>
 //           <button
-//             type="button"
-//             onClick={handleLogin}
-//             className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+//             onClick={() => {
+//               setAuthMode("login");
+//               setCameraStarted(false);
+//               setCapturedPhoto(null);
+//               setMessage("");
+//             }}
+//             className={`px-6 py-2 rounded-full font-semibold transition-colors duration-300 ${
+//               authMode === "login"
+//                 ? "bg-green-600 text-white shadow-md"
+//                 : "bg-transparent text-gray-700 hover:bg-gray-300"
+//             }`}
 //           >
 //             Login
 //           </button>
 //         </div>
-//       </form>
+
+//         {/* Video / Captured Photo Display */}
+//         <div className="relative w-full h-60 bg-gray-200 rounded-lg overflow-hidden border-2 border-gray-300 flex items-center justify-center">
+//           {capturedPhoto ? (
+//             <img
+//               src={capturedPhoto}
+//               alt="Captured"
+//               className="w-full h-full object-cover"
+//             />
+//           ) : (
+//             <video
+//               ref={videoRef}
+//               autoPlay
+//               muted
+//               playsInline
+//               className="w-full h-full object-cover"
+//               style={{ display: cameraStarted ? "block" : "none" }}
+//             />
+//           )}
+//           {!cameraStarted && !capturedPhoto && (
+//             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-500 text-center">
+//               Click "Start Camera" to begin
+//             </div>
+//           )}
+//         </div>
+
+//         {/* Camera Control Buttons */}
+//         <div className="flex flex-col space-y-4">
+//           {!cameraStarted && (
+//             <button
+//               onClick={startVideo}
+//               className="w-full py-3 rounded-lg font-bold text-white transition-colors duration-300 bg-blue-500 hover:bg-blue-600 shadow-md"
+//             >
+//               Start Camera
+//             </button>
+//           )}
+
+//           {cameraStarted && (
+//             <button
+//               type="button"
+//               onClick={capturePhoto}
+//               className="w-full py-3 rounded-lg font-bold text-white transition-colors duration-300 bg-yellow-500 hover:bg-yellow-600 shadow-md"
+//             >
+//               Capture Photo
+//             </button>
+//           )}
+//         </div>
+
+//         {/* Form Inputs and Submit Button */}
+//         <form onSubmit={handleAuth} className="w-full space-y-4 mt-4">
+//           {authMode === "register" && (
+//             <>
+//               <input
+//                 type="text"
+//                 placeholder="Username"
+//                 value={username}
+//                 onChange={(e) => setUsername(e.target.value)}
+//                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+//                 required
+//               />
+//               <input
+//                 type="email"
+//                 placeholder="Email"
+//                 value={email}
+//                 onChange={(e) => setEmail(e.target.value)}
+//                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+//                 required
+//               />
+//             </>
+//           )}
+
+//           <button
+//             type="submit"
+//             className={`w-full py-3 rounded-lg font-bold text-white transition-colors duration-300 shadow-md mt-4
+//               ${
+//                 authMode === "register"
+//                   ? "bg-blue-600 hover:bg-blue-700"
+//                   : "bg-green-600 hover:bg-green-700"
+//               }
+//             `}
+//           >
+//             {authMode === "register" ? "Register" : "Login"}
+//           </button>
+//         </form>
+//       </div>
 //     </div>
 //   );
 // };
 
 // export default FaceAuth;
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 
 const FaceAuth = () => {
+  // State to manage the authentication mode: 'register' or 'login'
+  const [authMode, setAuthMode] = useState("login"); // Default to 'login' based on your image
+
+  // State and refs for camera and photo capture
   const videoRef = useRef(null);
   const [cameraStarted, setCameraStarted] = useState(false);
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [capturedPhoto, setCapturedPhoto] = useState(null);
   const [photoBlob, setPhotoBlob] = useState(null);
 
-  // Start camera
+  // State for form inputs and user session
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // State for UI messages (errors, success)
+  const [message, setMessage] = useState("");
+
+  // Helper function to reset all relevant state
+  const resetState = () => {
+    // Stop the video stream if it's running
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject;
+      stream.getTracks().forEach((track) => track.stop());
+      videoRef.current.srcObject = null; // Explicitly null out the srcObject
+    }
+
+    setCameraStarted(false);
+    setCapturedPhoto(null);
+    setPhotoBlob(null);
+    setMessage("");
+    setUsername("");
+    setEmail("");
+  };
+
+  // Start camera and clear any previous photo
   const startVideo = async () => {
+    setMessage(""); // Clear any previous messages
     try {
+      // Check for camera access
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      videoRef.current.srcObject = stream;
-      videoRef.current.play();
-      setCameraStarted(true);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+        setCameraStarted(true);
+        setCapturedPhoto(null); // Clear any previous photo when starting camera
+        setPhotoBlob(null); // Clear the associated blob
+      }
     } catch (err) {
       console.error("Camera access denied:", err);
-      alert("Please allow camera access.");
+      setMessage("Please allow camera access to use this feature.");
+      setCameraStarted(false);
     }
   };
 
-  // Capture photo and stop camera
+  // Capture a still photo from the video stream
   const capturePhoto = () => {
     const video = videoRef.current;
+    if (!video) return;
+
     const canvas = document.createElement("canvas");
     canvas.width = video.videoWidth || 320;
     canvas.height = video.videoHeight || 240;
     const ctx = canvas.getContext("2d");
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
+    // Convert the canvas content to a Blob and set state
     canvas.toBlob((blob) => {
       setCapturedPhoto(URL.createObjectURL(blob));
       setPhotoBlob(blob);
     }, "image/jpeg");
 
-    // Stop camera
+    // Stop the camera stream to save resources
     const stream = video.srcObject;
     if (stream) {
       stream.getTracks().forEach((track) => track.stop());
+      video.srcObject = null; // Explicitly null out the srcObject
     }
     setCameraStarted(false);
   };
 
-  // Handle registration
-  const handleRegister = async (e) => {
+  // Handle both registration and login with a single function
+  const handleAuth = async (e) => {
     e.preventDefault();
+    setMessage(""); // Clear message before new attempt
+
     if (!photoBlob) {
-      alert("Please capture your photo first!");
-      return;
-    }
-
-    try {
-      const formData = new FormData();
-      formData.append("username", username);
-      formData.append("email", email);
-      formData.append("photo", photoBlob, "face.jpg");
-
-      const res = await fetch("http://localhost:5000/api/auth/register", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
-      alert(data.message || JSON.stringify(data));
-    } catch (err) {
-      alert(err.message);
-    }
-  };
-
-  // Handle login
-  const handleLogin = async () => {
-    if (!photoBlob) {
-      alert("Please capture your photo first!");
+      setMessage("Please capture your photo first!");
       return;
     }
 
@@ -525,99 +384,210 @@ const FaceAuth = () => {
       const formData = new FormData();
       formData.append("photo", photoBlob, "face.jpg");
 
-      const res = await fetch("http://localhost:5000/api/auth/login", {
+      let endpoint = "";
+
+      // Conditional logic for handling 'register' vs 'login' mode
+      if (authMode === "register") {
+        if (!username || !email) {
+          setMessage("Please enter username and email to register.");
+          return;
+        }
+        formData.append("username", username);
+        formData.append("email", email);
+        endpoint = "http://localhost:5000/api/auth/register";
+      } else {
+        // authMode is 'login'
+        endpoint = "http://localhost:5000/api/auth/login";
+      }
+
+      // Perform the API call
+      const res = await fetch(endpoint, {
         method: "POST",
         body: formData,
       });
+
       const data = await res.json();
-      alert(data.message || JSON.stringify(data));
+
+      if (res.ok) {
+        if (authMode === "register") {
+          setMessage("Registration successful! You can now log in.");
+          setAuthMode("login"); // Auto-switch to login tab
+        } else {
+          // authMode is 'login'
+          setMessage(`Login successful! Welcome, ${data.username || "user"}!`);
+          setIsLoggedIn(true); // "Redirect" to the home page view
+        }
+      } else {
+        // Handle failed authentication
+        setMessage(data.message || "Authentication failed.");
+        resetState(); // Reset state on failure
+      }
     } catch (err) {
-      alert(err.message);
+      setMessage("Error: " + err.message);
+      resetState(); // Reset state on error
     }
   };
 
-  return (
-    <div className="flex flex-col items-center mt-10 space-y-5">
-      {/* Video / Captured Photo */}
-      {capturedPhoto ? (
-        <img
-          src={capturedPhoto}
-          alt="Captured"
-          className="w-64 h-48 object-cover border rounded"
-        />
-      ) : (
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          playsInline
-          width="320"
-          height="240"
-          className="border-2 border-gray-300 rounded-lg"
-          style={{ display: cameraStarted ? "block" : "none" }}
-        />
-      )}
-
-      {/* Start Camera Button */}
-      {!cameraStarted && !capturedPhoto && (
-        <button
-          onClick={startVideo}
-          className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-        >
-          Click to Capture
-        </button>
-      )}
-
-      {/* Capture Photo Button */}
-      {cameraStarted && (
-        <button
-          type="button"
-          onClick={capturePhoto}
-          className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 mt-2"
-        >
-          Capture Photo
-        </button>
-      )}
-
-      {/* Form Inputs */}
-      <form
-        onSubmit={handleRegister}
-        className="flex flex-col items-center space-y-3 mt-4"
-      >
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="border px-2 py-1 rounded w-64"
-          required
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="border px-2 py-1 rounded w-64"
-          required
-        />
-
-        {/* Action Buttons */}
-        <div className="flex space-x-4 mt-2">
+  // If the user is logged in, show a simple home page
+  if (isLoggedIn) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6 text-center">
+        <div className="p-10 bg-white rounded-2xl shadow-xl space-y-4">
+          <h2 className="text-4xl font-extrabold text-green-600">
+            Successfully Logged In!
+          </h2>
+          <p className="text-xl text-gray-700">Welcome to your home page.</p>
           <button
-            type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            onClick={() => {
+              setIsLoggedIn(false);
+              resetState(); // IMPORTANT: Reset state on logout
+            }}
+            className="mt-6 px-6 py-2 rounded-lg font-bold text-white transition-colors duration-300 bg-red-500 hover:bg-red-600 shadow-md"
+          >
+            Logout
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Main Authentication UI
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+      <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-xl space-y-6">
+        <h2 className="text-3xl font-extrabold text-center text-gray-800">
+          Face Authentication
+        </h2>
+
+        {/* UI Message Display */}
+        {message && (
+          <div
+            className={`p-3 text-center rounded-lg font-medium 
+              ${
+                message.includes("successful")
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
+              }
+            `}
+          >
+            {message}
+          </div>
+        )}
+
+        {/* Mode Switcher Buttons */}
+        <div className="flex justify-center space-x-2 bg-gray-200 p-1 rounded-full">
+          <button
+            onClick={() => {
+              setAuthMode("register");
+              resetState(); // IMPORTANT: Reset state on tab switch
+            }}
+            className={`px-6 py-2 rounded-full font-semibold transition-colors duration-300 ${
+              authMode === "register"
+                ? "bg-blue-600 text-white shadow-md"
+                : "bg-transparent text-gray-700 hover:bg-gray-300"
+            }`}
           >
             Register
           </button>
           <button
-            type="button"
-            onClick={handleLogin}
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            onClick={() => {
+              setAuthMode("login");
+              resetState(); // IMPORTANT: Reset state on tab switch
+            }}
+            className={`px-6 py-2 rounded-full font-semibold transition-colors duration-300 ${
+              authMode === "login"
+                ? "bg-green-600 text-white shadow-md"
+                : "bg-transparent text-gray-700 hover:bg-gray-300"
+            }`}
           >
             Login
           </button>
         </div>
-      </form>
+
+        {/* Video / Captured Photo Display */}
+        <div className="relative w-full h-60 bg-gray-200 rounded-lg overflow-hidden border-2 border-gray-300 flex items-center justify-center">
+          {capturedPhoto ? (
+            <img
+              src={capturedPhoto}
+              alt="Captured"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <video
+              ref={videoRef}
+              autoPlay
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+              style={{ display: cameraStarted ? "block" : "none" }}
+            />
+          )}
+          {!cameraStarted && !capturedPhoto && (
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-500 text-center">
+              Click "Start Camera" to begin
+            </div>
+          )}
+        </div>
+
+        {/* Camera Control Buttons */}
+        <div className="flex flex-col space-y-4">
+          {!cameraStarted && (
+            <button
+              onClick={startVideo}
+              className="w-full py-3 rounded-lg font-bold text-white transition-colors duration-300 bg-blue-500 hover:bg-blue-600 shadow-md"
+            >
+              Start Camera
+            </button>
+          )}
+
+          {cameraStarted && (
+            <button
+              type="button"
+              onClick={capturePhoto}
+              className="w-full py-3 rounded-lg font-bold text-white transition-colors duration-300 bg-yellow-500 hover:bg-yellow-600 shadow-md"
+            >
+              Capture Photo
+            </button>
+          )}
+        </div>
+
+        {/* Form Inputs and Submit Button */}
+        <form onSubmit={handleAuth} className="w-full space-y-4 mt-4">
+          {authMode === "register" && (
+            <>
+              <input
+                type="text"
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                required
+              />
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                required
+              />
+            </>
+          )}
+
+          <button
+            type="submit"
+            className={`w-full py-3 rounded-lg font-bold text-white transition-colors duration-300 shadow-md mt-4
+              ${
+                authMode === "register"
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "bg-green-600 hover:bg-green-700"
+              }
+            `}
+          >
+            {authMode === "register" ? "Register" : "Login"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
