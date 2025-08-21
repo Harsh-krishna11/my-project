@@ -873,9 +873,9 @@ const FaceAuth = () => {
         }
         payload.username = username;
         payload.email = email;
-        endpoint = "http://localhost:5000/api/auth/register-embedding";
+        endpoint = "https://face-auth-backend-ez43.onrender.com/api/auth/register-embedding";
       } else {
-        endpoint = "http://localhost:5000/api/auth/login-embedding";
+        endpoint = "https://face-auth-backend-ez43.onrender.com/api/auth/login-embedding";
       }
 
       const res = await fetch(endpoint, {
