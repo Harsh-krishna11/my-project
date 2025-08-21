@@ -717,7 +717,7 @@ const FaceAuth = () => {
   const [authMode, setAuthMode] = useState("login");
   const [isLoading, setIsLoading] = useState(false);
   const [isModelsLoading, setIsModelsLoading] = useState(true);
-
+  const [isFaceCaptured, setIsFaceCaptured] = useState(false);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const [cameraStarted, setCameraStarted] = useState(false);
@@ -802,53 +802,131 @@ const FaceAuth = () => {
     }
   };
 
+  // const detectAndCapture = async () => {
+  //   if (isFaceCaptured) return;
+  //   setMessage("Detecting face...");
+  //   const video = videoRef.current;
+  //   if (!video) return;
+
+  //   // Use face-api.js to detect a single face and get its descriptor
+  //   // const detections = await faceapi
+  //   //   .detectSingleFace(video, new faceapi.SsdMobilenetv1Options())
+  //   //   .withFaceLandmarks()
+  //   //   .withFaceDescriptor();
+
+  //   const detections = await faceapi
+  //     .detectSingleFace(
+  //       video,
+  //       new faceapi.SsdMobilenetv1Options({ minConfidence: 0.8 })
+  //     )
+  //     .withFaceLandmarks()
+  //     .withFaceDescriptor();
+
+  //   if (detections) {
+  //     const displaySize = {
+  //       width: video.videoWidth || 320,
+  //       height: video.videoHeight || 240,
+  //     };
+  //     const canvas = canvasRef.current;
+  //     canvas.width = displaySize.width;
+  //     canvas.height = displaySize.height;
+
+  //     // Draw the current video frame to the canvas
+  //     const ctx = canvas.getContext("2d");
+  //     ctx.drawImage(video, 0, 0, displaySize.width, displaySize.height);
+
+  //     // Draw the detection box on the canvas
+  //     faceapi.matchDimensions(canvas, displaySize);
+  //     const resizedDetections = faceapi.resizeResults(detections, displaySize);
+  //     faceapi.draw.drawDetections(canvas, resizedDetections);
+  //     faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+
+  //     // Store the face descriptor in state
+  //     setFaceDescriptor(detections.descriptor);
+  //     setIsFaceCaptured(true);
+  //     setMessage("Face captured successfully! You can now authenticate.");
+
+  //     // Stop the camera stream after capturing
+  //     const stream = video.srcObject;
+  //     if (stream) {
+  //       stream.getTracks().forEach((track) => track.stop());
+  //       video.srcObject = null;
+  //     }
+  //     setCameraStarted(false);
+  //   } else {
+  //     setMessage("No face detected. Please try again.");
+  //   }
+  // };
+
   const detectAndCapture = async () => {
     setMessage("Detecting face...");
     const video = videoRef.current;
     if (!video) return;
 
-    // Use face-api.js to detect a single face and get its descriptor
-    const detections = await faceapi
-      .detectSingleFace(video, new faceapi.SsdMobilenetv1Options())
+    // 1. Use face-api.js to detect ALL faces and get their descriptors
+    const allDetections = await faceapi
+      .detectAllFaces(video, new faceapi.SsdMobilenetv1Options())
       .withFaceLandmarks()
-      .withFaceDescriptor();
+      .withFaceDescriptors();
 
-    if (detections) {
-      const displaySize = {
-        width: video.videoWidth || 320,
-        height: video.videoHeight || 240,
-      };
-      const canvas = canvasRef.current;
-      canvas.width = displaySize.width;
-      canvas.height = displaySize.height;
+    if (allDetections.length > 0) {
+      // 2. Find the detection with the largest bounding box area (the most prominent face)
+      let prominentDetection = null;
+      let maxArea = 0;
 
-      // Draw the current video frame to the canvas
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(video, 0, 0, displaySize.width, displaySize.height);
+      allDetections.forEach((detection) => {
+        const box = detection.detection.box;
+        const area = box.width * box.height;
+        if (area > maxArea) {
+          maxArea = area;
+          prominentDetection = detection;
+        }
+      });
 
-      // Draw the detection box on the canvas
-      faceapi.matchDimensions(canvas, displaySize);
-      const resizedDetections = faceapi.resizeResults(detections, displaySize);
-      faceapi.draw.drawDetections(canvas, resizedDetections);
-      faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+      // Check if a prominent face was found
+      if (prominentDetection) {
+        const displaySize = {
+          width: video.videoWidth || 320,
+          height: video.videoHeight || 240,
+        };
+        const canvas = canvasRef.current;
+        canvas.width = displaySize.width;
+        canvas.height = displaySize.height;
 
-      // Store the face descriptor in state
-      setFaceDescriptor(detections.descriptor);
+        // Draw the current video frame to the canvas
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0, displaySize.width, displaySize.height);
 
-      setMessage("Face captured successfully! You can now authenticate.");
+        // Draw the detection box on the canvas for the prominent face only
+        faceapi.matchDimensions(canvas, displaySize);
+        const resizedDetection = faceapi.resizeResults(
+          prominentDetection,
+          displaySize
+        );
+        faceapi.draw.drawDetections(canvas, resizedDetection);
+        faceapi.draw.drawFaceLandmarks(canvas, resizedDetection);
 
-      // Stop the camera stream after capturing
-      const stream = video.srcObject;
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
-        video.srcObject = null;
+        // Store the face descriptor in state
+        setFaceDescriptor(prominentDetection.descriptor);
+
+        setMessage("Face captured successfully! You can now authenticate.");
+
+        // Stop the camera stream after capturing
+        const stream = video.srcObject;
+        if (stream) {
+          stream.getTracks().forEach((track) => track.stop());
+          video.srcObject = null;
+        }
+        setCameraStarted(false);
+      } else {
+        // This case should not be reached if allDetections.length > 0,
+        // but it's a good practice to handle it.
+        setMessage("No prominent face detected. Please try again.");
       }
-      setCameraStarted(false);
     } else {
       setMessage("No face detected. Please try again.");
     }
   };
-
   const handleAuth = async (e) => {
     e.preventDefault();
     setMessage("");
