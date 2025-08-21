@@ -1,97 +1,502 @@
-// import React, { useRef, useState } from "react";
+// // import React, { useRef, useState } from "react";
+
+// // const FaceAuth = () => {
+// //   const [authMode, setAuthMode] = useState("login");
+// //   const [isLoading, setIsLoading] = useState(false);
+
+// //   const videoRef = useRef(null);
+// //   const [cameraStarted, setCameraStarted] = useState(false);
+// //   const [capturedPhoto, setCapturedPhoto] = useState(null);
+// //   const [photoBlob, setPhotoBlob] = useState(null);
+
+// //   const [username, setUsername] = useState("");
+// //   const [email, setEmail] = useState("");
+// //   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+// //   const [message, setMessage] = useState("");
+
+// //   const resetState = () => {
+// //     if (videoRef.current && videoRef.current.srcObject) {
+// //       const stream = videoRef.current.srcObject;
+// //       stream.getTracks().forEach((track) => track.stop());
+// //       videoRef.current.srcObject = null;
+// //     }
+
+// //     setCameraStarted(false);
+// //     setCapturedPhoto(null);
+// //     setPhotoBlob(null);
+// //     setMessage("");
+// //     setUsername("");
+// //     setEmail("");
+// //     setIsLoading(false);
+// //   };
+
+// //   const startVideo = async () => {
+// //     setMessage("");
+// //     try {
+// //       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+// //       if (videoRef.current) {
+// //         videoRef.current.srcObject = stream;
+// //         videoRef.current.play();
+// //         setCameraStarted(true);
+// //         setCapturedPhoto(null);
+// //         setPhotoBlob(null);
+// //       }
+// //     } catch (err) {
+// //       console.error("Camera access denied:", err);
+// //       setMessage("Please allow camera access to use this feature.");
+// //       setCameraStarted(false);
+// //     }
+// //   };
+
+// //   const capturePhoto = () => {
+// //     const video = videoRef.current;
+// //     if (!video) return;
+
+// //     const canvas = document.createElement("canvas");
+// //     canvas.width = video.videoWidth || 320;
+// //     canvas.height = video.videoHeight || 240;
+// //     const ctx = canvas.getContext("2d");
+// //     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+// //     canvas.toBlob((blob) => {
+// //       setCapturedPhoto(URL.createObjectURL(blob));
+// //       setPhotoBlob(blob);
+// //     }, "image/jpeg");
+
+// //     const stream = video.srcObject;
+// //     if (stream) {
+// //       stream.getTracks().forEach((track) => track.stop());
+// //       video.srcObject = null;
+// //     }
+// //     setCameraStarted(false);
+// //   };
+
+// //   const handleAuth = async (e) => {
+// //     e.preventDefault();
+// //     setMessage("");
+
+// //     if (!photoBlob) {
+// //       setMessage("Please capture your photo first!");
+// //       return;
+// //     }
+// //     setIsLoading(true);
+
+// //     try {
+// //       const formData = new FormData();
+// //       formData.append("photo", photoBlob, "face.jpg");
+
+// //       let endpoint = "";
+// //       if (authMode === "register") {
+// //         if (!username || !email) {
+// //           setMessage("Please enter username and email to register.");
+// //           setIsLoading(false);
+// //           return;
+// //         }
+// //         formData.append("username", username);
+// //         formData.append("email", email);
+// //         endpoint = "http://localhost:5000/api/auth/register";
+// //       } else {
+// //         endpoint = "http://localhost:5000/api/auth/login";
+// //       }
+
+// //       const res = await fetch(endpoint, {
+// //         method: "POST",
+// //         body: formData,
+// //       });
+
+// //       const data = await res.json();
+
+// //       if (res.ok) {
+// //         if (authMode === "register") {
+// //           setMessage("Registration successful! You can now log in.");
+// //           setAuthMode("login");
+// //         } else {
+// //           setMessage(`Login successful! Welcome!`);
+// //           setIsLoggedIn(true);
+// //         }
+// //       } else {
+// //         setMessage(data.message || "Authentication failed.");
+// //         resetState();
+// //       }
+// //     } catch (err) {
+// //       setMessage("Error: " + err.message);
+// //       resetState();
+// //     } finally {
+// //       setIsLoading(false);
+// //     }
+// //   };
+
+// //   // If the user is logged in, show a simple home page
+// //   if (isLoggedIn) {
+// //     return (
+// //       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6 text-center">
+// //         <div className="p-10 bg-white rounded-2xl shadow-xl space-y-4">
+// //           <h2 className="text-4xl font-extrabold text-green-600">
+// //             Successfully Logged In!
+// //           </h2>
+// //           <p className="text-xl text-gray-700">Welcome to your home page.</p>
+// //           <button
+// //             onClick={() => {
+// //               setIsLoggedIn(false);
+// //               resetState();
+// //             }}
+// //             className="mt-6 px-6 py-2 rounded-lg font-bold text-white transition-colors duration-300 bg-red-500 hover:bg-red-600 shadow-md"
+// //           >
+// //             Logout
+// //           </button>
+// //         </div>
+// //       </div>
+// //     );
+// //   }
+
+// //   return (
+// //     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+// //       <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-xl space-y-6">
+// //         <h2 className="text-3xl font-extrabold text-center text-gray-800">
+// //           Face Authentication
+// //         </h2>
+
+// //         {message && (
+// //           <div
+// //             className={`p-3 text-center rounded-lg font-medium
+// //               ${
+// //                 message.includes("successful")
+// //                   ? "bg-green-100 text-green-700"
+// //                   : "bg-red-100 text-red-700"
+// //               }
+// //             `}
+// //           >
+// //             {message}
+// //           </div>
+// //         )}
+
+// //         {/* Mode Switcher Buttons */}
+// //         <div className="flex justify-center space-x-2 bg-gray-200 p-1 rounded-full">
+// //           <button
+// //             onClick={() => {
+// //               setAuthMode("register");
+// //               resetState();
+// //             }}
+// //             className={`px-6 py-2 rounded-full font-semibold transition-colors duration-300 ${
+// //               authMode === "register"
+// //                 ? "bg-blue-600 text-white shadow-md"
+// //                 : "bg-transparent text-gray-700 hover:bg-gray-300"
+// //             }`}
+// //           >
+// //             Register
+// //           </button>
+// //           <button
+// //             onClick={() => {
+// //               setAuthMode("login");
+// //               resetState();
+// //             }}
+// //             className={`px-6 py-2 rounded-full font-semibold transition-colors duration-300 ${
+// //               authMode === "login"
+// //                 ? "bg-green-600 text-white shadow-md"
+// //                 : "bg-transparent text-gray-700 hover:bg-gray-300"
+// //             }`}
+// //           >
+// //             Login
+// //           </button>
+// //         </div>
+
+// //         {/* Video / Captured Photo Display */}
+// //         <div className="relative w-full h-60 bg-gray-200 rounded-lg overflow-hidden border-2 border-gray-300 flex items-center justify-center">
+// //           {capturedPhoto ? (
+// //             <img
+// //               src={capturedPhoto}
+// //               alt="Captured"
+// //               className="w-full h-full object-cover"
+// //             />
+// //           ) : (
+// //             <video
+// //               ref={videoRef}
+// //               autoPlay
+// //               muted
+// //               playsInline
+// //               className="w-full h-full object-cover"
+// //               style={{ display: cameraStarted ? "block" : "none" }}
+// //             />
+// //           )}
+// //           {!cameraStarted && !capturedPhoto && (
+// //             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-500 text-center">
+// //               Click "Start Camera" to begin
+// //             </div>
+// //           )}
+// //         </div>
+
+// //         {/* Camera Control Buttons */}
+// //         <div className="flex flex-col space-y-4">
+// //           {!cameraStarted && (
+// //             <button
+// //               onClick={startVideo}
+// //               className="w-full py-3 rounded-lg font-bold text-white transition-colors duration-300 bg-blue-500 hover:bg-blue-600 shadow-md"
+// //             >
+// //               Start Camera
+// //             </button>
+// //           )}
+
+// //           {cameraStarted && (
+// //             <button
+// //               type="button"
+// //               onClick={capturePhoto}
+// //               className="w-full py-3 rounded-lg font-bold text-white transition-colors duration-300 bg-yellow-500 hover:bg-yellow-600 shadow-md"
+// //             >
+// //               Capture Photo
+// //             </button>
+// //           )}
+// //         </div>
+
+// //         {/* Form Inputs, Submit Button, and Loading Spinner */}
+// //         {isLoading ? (
+// //           <div className="flex flex-col items-center justify-center py-6">
+// //             <svg
+// //               className="animate-spin h-10 w-10 text-gray-500"
+// //               xmlns="http://www.w3.org/2000/svg"
+// //               fill="none"
+// //               viewBox="0 0 24 24"
+// //             >
+// //               <circle
+// //                 className="opacity-25"
+// //                 cx="12"
+// //                 cy="12"
+// //                 r="10"
+// //                 stroke="currentColor"
+// //                 strokeWidth="4"
+// //               ></circle>
+// //               <path
+// //                 className="opacity-75"
+// //                 fill="currentColor"
+// //                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+// //               ></path>
+// //             </svg>
+// //             <p className="mt-4 text-gray-600 font-medium">
+// //               {authMode === "register"
+// //                 ? "Registering you..."
+// //                 : "Logging you in..."}
+// //             </p>
+// //           </div>
+// //         ) : (
+// //           <form onSubmit={handleAuth} className="w-full space-y-4 mt-4">
+// //             {authMode === "register" && (
+// //               <>
+// //                 <input
+// //                   type="text"
+// //                   placeholder="Username"
+// //                   value={username}
+// //                   onChange={(e) => setUsername(e.target.value)}
+// //                   className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+// //                   required
+// //                 />
+// //                 <input
+// //                   type="email"
+// //                   placeholder="Email"
+// //                   value={email}
+// //                   onChange={(e) => setEmail(e.target.value)}
+// //                   className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+// //                   required
+// //                 />
+// //               </>
+// //             )}
+
+// //             <button
+// //               type="submit"
+// //               className={`w-full py-3 rounded-lg font-bold text-white transition-colors duration-300 shadow-md mt-4
+// //                 ${
+// //                   authMode === "register"
+// //                     ? "bg-blue-600 hover:bg-blue-700"
+// //                     : "bg-green-600 hover:bg-green-700"
+// //                 }
+// //               `}
+// //             >
+// //               {authMode === "register" ? "Register" : "Login"}
+// //             </button>
+// //           </form>
+// //         )}
+// //       </div>
+// //     </div>
+// //   );
+// // };
+
+// // export default FaceAuth;
+
+// import React, { useRef, useState, useEffect } from "react";
+// import * as faceapi from "face-api.js";
 
 // const FaceAuth = () => {
-//   // State to manage the authentication mode: 'register' or 'login'
-//   const [authMode, setAuthMode] = useState("register");
+//   const [authMode, setAuthMode] = useState("login");
+//   const [isLoading, setIsLoading] = useState(false);
+//   const [isModelsLoading, setIsModelsLoading] = useState(true);
 
-//   // State and refs for camera and photo capture
 //   const videoRef = useRef(null);
+//   const canvasRef = useRef(null);
 //   const [cameraStarted, setCameraStarted] = useState(false);
-//   const [capturedPhoto, setCapturedPhoto] = useState(null);
-//   const [photoBlob, setPhotoBlob] = useState(null);
 
-//   // State for form inputs and user session
 //   const [username, setUsername] = useState("");
 //   const [email, setEmail] = useState("");
 //   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-//   // State for UI messages (errors, success)
 //   const [message, setMessage] = useState("");
 
-//   // Start camera and clear any previous photo
+//   // New state to hold the face descriptor (embedding)
+//   const [faceDescriptor, setFaceDescriptor] = useState(null);
+
+//   // Load face-api.js models when the component mounts
+//   useEffect(() => {
+//     const loadModels = async () => {
+//       setMessage("Loading face recognition models...");
+//       setIsModelsLoading(true);
+//       try {
+//         await Promise.all([
+//           faceapi.nets.ssdMobilenetv1.loadFromUri("/models"),
+//           faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
+//           faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
+//         ]);
+//         setMessage(
+//           "Models loaded successfully! Click 'Start Camera' to begin."
+//         );
+//         setIsModelsLoading(false);
+//       } catch (err) {
+//         console.error("Failed to load models:", err);
+//         setMessage(
+//           "Error loading models. Please check console and ensure models are in public/models."
+//         );
+//       }
+//     };
+//     loadModels();
+//   }, []);
+
+//   const resetState = () => {
+//     if (videoRef.current && videoRef.current.srcObject) {
+//       const stream = videoRef.current.srcObject;
+//       stream.getTracks().forEach((track) => track.stop());
+//       videoRef.current.srcObject = null;
+//     }
+
+//     if (canvasRef.current) {
+//       const canvasCtx = canvasRef.current.getContext("2d");
+//       canvasCtx.clearRect(
+//         0,
+//         0,
+//         canvasRef.current.width,
+//         canvasRef.current.height
+//       );
+//     }
+
+//     setCameraStarted(false);
+//     setFaceDescriptor(null);
+//     setMessage("");
+//     setUsername("");
+//     setEmail("");
+//     setIsLoading(false);
+//   };
+
 //   const startVideo = async () => {
-//     setMessage(""); // Clear any previous messages
+//     if (isModelsLoading) {
+//       setMessage("Models are still loading. Please wait.");
+//       return;
+//     }
+//     setMessage("");
 //     try {
-//       // Check for camera access
 //       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-//       videoRef.current.srcObject = stream;
-//       videoRef.current.play();
-//       setCameraStarted(true);
-//       setCapturedPhoto(null); // Clear any previous photo when starting camera
-//       setPhotoBlob(null); // Clear the associated blob
+//       if (videoRef.current) {
+//         videoRef.current.srcObject = stream;
+//         videoRef.current.play();
+//         setCameraStarted(true);
+//         setFaceDescriptor(null); // Reset descriptor on new photo attempt
+//       }
 //     } catch (err) {
 //       console.error("Camera access denied:", err);
 //       setMessage("Please allow camera access to use this feature.");
+//       setCameraStarted(false);
 //     }
 //   };
 
-//   // Capture a still photo from the video stream
-//   const capturePhoto = () => {
+//   /**
+//    * REPLACED OLD 'capturePhoto' functionality.
+//    * This function now captures a frame, detects the face,
+//    * extracts the face descriptor (embedding), and stops the camera.
+//    * It is the core of the face recognition logic on the frontend.
+//    */
+//   const detectAndCapture = async () => {
+//     setMessage("Detecting face...");
 //     const video = videoRef.current;
-//     const canvas = document.createElement("canvas");
-//     canvas.width = video.videoWidth || 320;
-//     canvas.height = video.videoHeight || 240;
-//     const ctx = canvas.getContext("2d");
-//     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+//     if (!video) return;
 
-//     // Convert the canvas content to a Blob and set state
-//     canvas.toBlob((blob) => {
-//       setCapturedPhoto(URL.createObjectURL(blob));
-//       setPhotoBlob(blob);
-//     }, "image/jpeg");
+//     // Use face-api.js to detect a single face and get its descriptor
+//     const detections = await faceapi
+//       .detectSingleFace(video, new faceapi.SsdMobilenetv1Options())
+//       .withFaceLandmarks()
+//       .withFaceDescriptor();
 
-//     // Stop the camera stream to save resources
-//     const stream = video.srcObject;
-//     if (stream) {
-//       stream.getTracks().forEach((track) => track.stop());
+//     if (detections) {
+//       // Draw the detection box on the canvas for visual feedback
+//       const displaySize = {
+//         width: video.videoWidth || 320,
+//         height: video.videoHeight || 240,
+//       };
+//       const canvas = canvasRef.current;
+//       canvas.width = displaySize.width;
+//       canvas.height = displaySize.height;
+//       faceapi.matchDimensions(canvas, displaySize);
+//       const resizedDetections = faceapi.resizeResults(detections, displaySize);
+//       canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+//       faceapi.draw.drawDetections(canvas, resizedDetections);
+//       faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+
+//       // Store the face descriptor in state
+//       setFaceDescriptor(detections.descriptor);
+
+//       setMessage("Face captured successfully! You can now authenticate.");
+
+//       // Stop the camera stream after capturing
+//       const stream = video.srcObject;
+//       if (stream) {
+//         stream.getTracks().forEach((track) => track.stop());
+//         video.srcObject = null;
+//       }
+//       setCameraStarted(false);
+//     } else {
+//       setMessage("No face detected. Please try again.");
 //     }
-//     setCameraStarted(false);
 //   };
 
-//   // Handle both registration and login with a single function
 //   const handleAuth = async (e) => {
 //     e.preventDefault();
-//     setMessage(""); // Clear message before new attempt
+//     setMessage("");
 
-//     if (!photoBlob) {
-//       setMessage("Please capture your photo first!");
+//     if (!faceDescriptor) {
+//       setMessage("Please capture your face photo first!");
 //       return;
 //     }
+//     setIsLoading(true);
 
 //     try {
-//       const formData = new FormData();
-//       formData.append("photo", photoBlob, "face.jpg");
+//       const payload = {
+//         descriptor: Array.from(faceDescriptor), // Convert the Float32Array to a standard array for JSON
+//       };
 
 //       let endpoint = "";
-
-//       // Conditional logic for handling 'register' vs 'login' mode
 //       if (authMode === "register") {
 //         if (!username || !email) {
 //           setMessage("Please enter username and email to register.");
+//           setIsLoading(false);
 //           return;
 //         }
-//         formData.append("username", username);
-//         formData.append("email", email);
+//         payload.username = username;
+//         payload.email = email;
 //         endpoint = "http://localhost:5000/api/auth/register";
 //       } else {
-//         // authMode is 'login'
 //         endpoint = "http://localhost:5000/api/auth/login";
 //       }
 
-//       // Perform the API call
 //       const res = await fetch(endpoint, {
 //         method: "POST",
-//         body: formData,
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify(payload),
 //       });
 
 //       const data = await res.json();
@@ -99,24 +504,20 @@
 //       if (res.ok) {
 //         if (authMode === "register") {
 //           setMessage("Registration successful! You can now log in.");
-//           setAuthMode("login"); // Auto-switch to login tab
+//           setAuthMode("login");
 //         } else {
-//           // authMode is 'login'
-//           setMessage(`Login successful! Welcome, ${data.username || "user"}!`);
-//           setIsLoggedIn(true); // "Redirect" to the home page view
+//           setMessage(`Login successful! Welcome!`);
+//           setIsLoggedIn(true);
 //         }
 //       } else {
-//         // Handle failed authentication
 //         setMessage(data.message || "Authentication failed.");
-//         setCapturedPhoto(null);
-//         setPhotoBlob(null);
-//         setCameraStarted(false);
+//         resetState();
 //       }
 //     } catch (err) {
 //       setMessage("Error: " + err.message);
-//       setCapturedPhoto(null);
-//       setPhotoBlob(null);
-//       setCameraStarted(false);
+//       resetState();
+//     } finally {
+//       setIsLoading(false);
 //     }
 //   };
 
@@ -130,7 +531,10 @@
 //           </h2>
 //           <p className="text-xl text-gray-700">Welcome to your home page.</p>
 //           <button
-//             onClick={() => setIsLoggedIn(false)}
+//             onClick={() => {
+//               setIsLoggedIn(false);
+//               resetState();
+//             }}
 //             className="mt-6 px-6 py-2 rounded-lg font-bold text-white transition-colors duration-300 bg-red-500 hover:bg-red-600 shadow-md"
 //           >
 //             Logout
@@ -140,7 +544,6 @@
 //     );
 //   }
 
-//   // Main Authentication UI
 //   return (
 //     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
 //       <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-xl space-y-6">
@@ -148,16 +551,15 @@
 //           Face Authentication
 //         </h2>
 
-//         {/* UI Message Display */}
 //         {message && (
 //           <div
 //             className={`p-3 text-center rounded-lg font-medium
-//             ${
-//               message.includes("successful")
-//                 ? "bg-green-100 text-green-700"
-//                 : "bg-red-100 text-red-700"
-//             }
-//           `}
+//               ${
+//                 message.includes("successful") || message.includes("loaded")
+//                   ? "bg-green-100 text-green-700"
+//                   : "bg-red-100 text-red-700"
+//               }
+//             `}
 //           >
 //             {message}
 //           </div>
@@ -168,9 +570,7 @@
 //           <button
 //             onClick={() => {
 //               setAuthMode("register");
-//               setCameraStarted(false);
-//               setCapturedPhoto(null);
-//               setMessage("");
+//               resetState();
 //             }}
 //             className={`px-6 py-2 rounded-full font-semibold transition-colors duration-300 ${
 //               authMode === "register"
@@ -183,9 +583,7 @@
 //           <button
 //             onClick={() => {
 //               setAuthMode("login");
-//               setCameraStarted(false);
-//               setCapturedPhoto(null);
-//               setMessage("");
+//               resetState();
 //             }}
 //             className={`px-6 py-2 rounded-full font-semibold transition-colors duration-300 ${
 //               authMode === "login"
@@ -199,23 +597,16 @@
 
 //         {/* Video / Captured Photo Display */}
 //         <div className="relative w-full h-60 bg-gray-200 rounded-lg overflow-hidden border-2 border-gray-300 flex items-center justify-center">
-//           {capturedPhoto ? (
-//             <img
-//               src={capturedPhoto}
-//               alt="Captured"
-//               className="w-full h-full object-cover"
-//             />
-//           ) : (
-//             <video
-//               ref={videoRef}
-//               autoPlay
-//               muted
-//               playsInline
-//               className="w-full h-full object-cover"
-//               style={{ display: cameraStarted ? "block" : "none" }}
-//             />
-//           )}
-//           {!cameraStarted && !capturedPhoto && (
+//           <video
+//             ref={videoRef}
+//             autoPlay
+//             muted
+//             playsInline
+//             className="w-full h-full object-cover"
+//             style={{ display: cameraStarted ? "block" : "none" }}
+//           />
+//           <canvas ref={canvasRef} className="absolute top-0 left-0"></canvas>
+//           {!cameraStarted && (
 //             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-500 text-center">
 //               Click "Start Camera" to begin
 //             </div>
@@ -227,59 +618,91 @@
 //           {!cameraStarted && (
 //             <button
 //               onClick={startVideo}
-//               className="w-full py-3 rounded-lg font-bold text-white transition-colors duration-300 bg-blue-500 hover:bg-blue-600 shadow-md"
+//               disabled={isModelsLoading}
+//               className="w-full py-3 rounded-lg font-bold text-white transition-colors duration-300 bg-blue-500 hover:bg-blue-600 shadow-md disabled:bg-gray-400"
 //             >
-//               Start Camera
+//               {isModelsLoading ? "Loading Models..." : "Start Camera"}
 //             </button>
 //           )}
 
 //           {cameraStarted && (
 //             <button
 //               type="button"
-//               onClick={capturePhoto}
+//               onClick={detectAndCapture}
 //               className="w-full py-3 rounded-lg font-bold text-white transition-colors duration-300 bg-yellow-500 hover:bg-yellow-600 shadow-md"
 //             >
-//               Capture Photo
+//               Capture Face
 //             </button>
 //           )}
 //         </div>
 
-//         {/* Form Inputs and Submit Button */}
-//         <form onSubmit={handleAuth} className="w-full space-y-4 mt-4">
-//           {authMode === "register" && (
-//             <>
-//               <input
-//                 type="text"
-//                 placeholder="Username"
-//                 value={username}
-//                 onChange={(e) => setUsername(e.target.value)}
-//                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-//                 required
-//               />
-//               <input
-//                 type="email"
-//                 placeholder="Email"
-//                 value={email}
-//                 onChange={(e) => setEmail(e.target.value)}
-//                 className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-//                 required
-//               />
-//             </>
-//           )}
+//         {/* Form Inputs, Submit Button, and Loading Spinner */}
+//         {isLoading ? (
+//           <div className="flex flex-col items-center justify-center py-6">
+//             <svg
+//               className="animate-spin h-10 w-10 text-gray-500"
+//               xmlns="http://www.w3.org/2000/svg"
+//               fill="none"
+//               viewBox="0 0 24 24"
+//             >
+//               <circle
+//                 className="opacity-25"
+//                 cx="12"
+//                 cy="12"
+//                 r="10"
+//                 stroke="currentColor"
+//                 strokeWidth="4"
+//               ></circle>
+//               <path
+//                 className="opacity-75"
+//                 fill="currentColor"
+//                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+//               ></path>
+//             </svg>
+//             <p className="mt-4 text-gray-600 font-medium">
+//               {authMode === "register"
+//                 ? "Registering you..."
+//                 : "Logging you in..."}
+//             </p>
+//           </div>
+//         ) : (
+//           <form onSubmit={handleAuth} className="w-full space-y-4 mt-4">
+//             {authMode === "register" && (
+//               <>
+//                 <input
+//                   type="text"
+//                   placeholder="Username"
+//                   value={username}
+//                   onChange={(e) => setUsername(e.target.value)}
+//                   className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+//                   required
+//                 />
+//                 <input
+//                   type="email"
+//                   placeholder="Email"
+//                   value={email}
+//                   onChange={(e) => setEmail(e.target.value)}
+//                   className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+//                   required
+//                 />
+//               </>
+//             )}
 
-//           <button
-//             type="submit"
-//             className={`w-full py-3 rounded-lg font-bold text-white transition-colors duration-300 shadow-md mt-4
-//               ${
-//                 authMode === "register"
-//                   ? "bg-blue-600 hover:bg-blue-700"
-//                   : "bg-green-600 hover:bg-green-700"
-//               }
-//             `}
-//           >
-//             {authMode === "register" ? "Register" : "Login"}
-//           </button>
-//         </form>
+//             <button
+//               type="submit"
+//               disabled={!faceDescriptor}
+//               className={`w-full py-3 rounded-lg font-bold text-white transition-colors duration-300 shadow-md mt-4
+//                 ${
+//                   authMode === "register"
+//                     ? "bg-blue-600 hover:bg-blue-700"
+//                     : "bg-green-600 hover:bg-green-700"
+//                 } disabled:bg-gray-400
+//               `}
+//             >
+//               {authMode === "register" ? "Register" : "Login"}
+//             </button>
+//           </form>
+//         )}
 //       </div>
 //     </div>
 //   );
@@ -288,54 +711,89 @@
 // export default FaceAuth;
 
 import React, { useRef, useState, useEffect } from "react";
+import * as faceapi from "face-api.js";
 
 const FaceAuth = () => {
-  // State to manage the authentication mode: 'register' or 'login'
-  const [authMode, setAuthMode] = useState("login"); // Default to 'login' based on your image
+  const [authMode, setAuthMode] = useState("login");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isModelsLoading, setIsModelsLoading] = useState(true);
 
-  // State and refs for camera and photo capture
   const videoRef = useRef(null);
+  const canvasRef = useRef(null);
   const [cameraStarted, setCameraStarted] = useState(false);
-  const [capturedPhoto, setCapturedPhoto] = useState(null);
-  const [photoBlob, setPhotoBlob] = useState(null);
 
-  // State for form inputs and user session
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // State for UI messages (errors, success)
   const [message, setMessage] = useState("");
 
-  // Helper function to reset all relevant state
+  // New state to hold the face descriptor (embedding)
+  const [faceDescriptor, setFaceDescriptor] = useState(null);
+
+  // Load face-api.js models when the component mounts
+  useEffect(() => {
+    const loadModels = async () => {
+      setMessage("Loading face recognition models...");
+      setIsModelsLoading(true);
+      try {
+        await Promise.all([
+          faceapi.nets.ssdMobilenetv1.loadFromUri("/models"),
+          faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
+          faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
+        ]);
+        setMessage(
+          "Models loaded successfully! Click 'Start Camera' to begin."
+        );
+        setIsModelsLoading(false);
+      } catch (err) {
+        console.error("Failed to load models:", err);
+        setMessage(
+          "Error loading models. Please check console and ensure models are in public/models."
+        );
+      }
+    };
+    loadModels();
+  }, []);
+
   const resetState = () => {
-    // Stop the video stream if it's running
     if (videoRef.current && videoRef.current.srcObject) {
       const stream = videoRef.current.srcObject;
       stream.getTracks().forEach((track) => track.stop());
-      videoRef.current.srcObject = null; // Explicitly null out the srcObject
+      videoRef.current.srcObject = null;
+    }
+
+    if (canvasRef.current) {
+      const canvasCtx = canvasRef.current.getContext("2d");
+      canvasCtx.clearRect(
+        0,
+        0,
+        canvasRef.current.width,
+        canvasRef.current.height
+      );
     }
 
     setCameraStarted(false);
-    setCapturedPhoto(null);
-    setPhotoBlob(null);
+    setFaceDescriptor(null);
     setMessage("");
     setUsername("");
     setEmail("");
+    setIsLoading(false);
   };
 
-  // Start camera and clear any previous photo
   const startVideo = async () => {
-    setMessage(""); // Clear any previous messages
+    if (isModelsLoading) {
+      setMessage("Models are still loading. Please wait.");
+      return;
+    }
+    setMessage("");
     try {
-      // Check for camera access
       const stream = await navigator.mediaDevices.getUserMedia({ video: true });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.play();
         setCameraStarted(true);
-        setCapturedPhoto(null); // Clear any previous photo when starting camera
-        setPhotoBlob(null); // Clear the associated blob
+        setFaceDescriptor(null); // Reset descriptor on new photo attempt
       }
     } catch (err) {
       console.error("Camera access denied:", err);
@@ -344,66 +802,88 @@ const FaceAuth = () => {
     }
   };
 
-  // Capture a still photo from the video stream
-  const capturePhoto = () => {
+  const detectAndCapture = async () => {
+    setMessage("Detecting face...");
     const video = videoRef.current;
     if (!video) return;
 
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth || 320;
-    canvas.height = video.videoHeight || 240;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    // Use face-api.js to detect a single face and get its descriptor
+    const detections = await faceapi
+      .detectSingleFace(video, new faceapi.SsdMobilenetv1Options())
+      .withFaceLandmarks()
+      .withFaceDescriptor();
 
-    // Convert the canvas content to a Blob and set state
-    canvas.toBlob((blob) => {
-      setCapturedPhoto(URL.createObjectURL(blob));
-      setPhotoBlob(blob);
-    }, "image/jpeg");
+    if (detections) {
+      const displaySize = {
+        width: video.videoWidth || 320,
+        height: video.videoHeight || 240,
+      };
+      const canvas = canvasRef.current;
+      canvas.width = displaySize.width;
+      canvas.height = displaySize.height;
 
-    // Stop the camera stream to save resources
-    const stream = video.srcObject;
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
-      video.srcObject = null; // Explicitly null out the srcObject
+      // Draw the current video frame to the canvas
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, displaySize.width, displaySize.height);
+
+      // Draw the detection box on the canvas
+      faceapi.matchDimensions(canvas, displaySize);
+      const resizedDetections = faceapi.resizeResults(detections, displaySize);
+      faceapi.draw.drawDetections(canvas, resizedDetections);
+      faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+
+      // Store the face descriptor in state
+      setFaceDescriptor(detections.descriptor);
+
+      setMessage("Face captured successfully! You can now authenticate.");
+
+      // Stop the camera stream after capturing
+      const stream = video.srcObject;
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+        video.srcObject = null;
+      }
+      setCameraStarted(false);
+    } else {
+      setMessage("No face detected. Please try again.");
     }
-    setCameraStarted(false);
   };
 
-  // Handle both registration and login with a single function
   const handleAuth = async (e) => {
     e.preventDefault();
-    setMessage(""); // Clear message before new attempt
+    setMessage("");
 
-    if (!photoBlob) {
-      setMessage("Please capture your photo first!");
+    if (!faceDescriptor) {
+      setMessage("Please capture your face photo first!");
       return;
     }
+    setIsLoading(true);
 
     try {
-      const formData = new FormData();
-      formData.append("photo", photoBlob, "face.jpg");
+      const payload = {
+        embedding: Array.from(faceDescriptor), // Convert the Float32Array to a standard array for JSON
+      };
 
       let endpoint = "";
-
-      // Conditional logic for handling 'register' vs 'login' mode
       if (authMode === "register") {
         if (!username || !email) {
           setMessage("Please enter username and email to register.");
+          setIsLoading(false);
           return;
         }
-        formData.append("username", username);
-        formData.append("email", email);
-        endpoint = "http://localhost:5000/api/auth/register";
+        payload.username = username;
+        payload.email = email;
+        endpoint = "http://localhost:5000/api/auth/register-embedding";
       } else {
-        // authMode is 'login'
-        endpoint = "http://localhost:5000/api/auth/login";
+        endpoint = "http://localhost:5000/api/auth/login-embedding";
       }
 
-      // Perform the API call
       const res = await fetch(endpoint, {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -411,20 +891,20 @@ const FaceAuth = () => {
       if (res.ok) {
         if (authMode === "register") {
           setMessage("Registration successful! You can now log in.");
-          setAuthMode("login"); // Auto-switch to login tab
+          setAuthMode("login");
         } else {
-          // authMode is 'login'
-          setMessage(`Login successful! Welcome, ${data.username || "user"}!`);
-          setIsLoggedIn(true); // "Redirect" to the home page view
+          setMessage(`Login successful! Welcome!`);
+          setIsLoggedIn(true);
         }
       } else {
-        // Handle failed authentication
         setMessage(data.message || "Authentication failed.");
-        resetState(); // Reset state on failure
+        resetState();
       }
     } catch (err) {
       setMessage("Error: " + err.message);
-      resetState(); // Reset state on error
+      resetState();
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -440,7 +920,7 @@ const FaceAuth = () => {
           <button
             onClick={() => {
               setIsLoggedIn(false);
-              resetState(); // IMPORTANT: Reset state on logout
+              resetState();
             }}
             className="mt-6 px-6 py-2 rounded-lg font-bold text-white transition-colors duration-300 bg-red-500 hover:bg-red-600 shadow-md"
           >
@@ -451,7 +931,6 @@ const FaceAuth = () => {
     );
   }
 
-  // Main Authentication UI
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
       <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-xl space-y-6">
@@ -459,12 +938,11 @@ const FaceAuth = () => {
           Face Authentication
         </h2>
 
-        {/* UI Message Display */}
         {message && (
           <div
-            className={`p-3 text-center rounded-lg font-medium 
+            className={`p-3 text-center rounded-lg font-medium
               ${
-                message.includes("successful")
+                message.includes("successful") || message.includes("loaded")
                   ? "bg-green-100 text-green-700"
                   : "bg-red-100 text-red-700"
               }
@@ -479,7 +957,7 @@ const FaceAuth = () => {
           <button
             onClick={() => {
               setAuthMode("register");
-              resetState(); // IMPORTANT: Reset state on tab switch
+              resetState();
             }}
             className={`px-6 py-2 rounded-full font-semibold transition-colors duration-300 ${
               authMode === "register"
@@ -492,7 +970,7 @@ const FaceAuth = () => {
           <button
             onClick={() => {
               setAuthMode("login");
-              resetState(); // IMPORTANT: Reset state on tab switch
+              resetState();
             }}
             className={`px-6 py-2 rounded-full font-semibold transition-colors duration-300 ${
               authMode === "login"
@@ -506,23 +984,23 @@ const FaceAuth = () => {
 
         {/* Video / Captured Photo Display */}
         <div className="relative w-full h-60 bg-gray-200 rounded-lg overflow-hidden border-2 border-gray-300 flex items-center justify-center">
-          {capturedPhoto ? (
-            <img
-              src={capturedPhoto}
-              alt="Captured"
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <video
-              ref={videoRef}
-              autoPlay
-              muted
-              playsInline
-              className="w-full h-full object-cover"
-              style={{ display: cameraStarted ? "block" : "none" }}
-            />
-          )}
-          {!cameraStarted && !capturedPhoto && (
+          {/* This video element is hidden when the camera is off */}
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+            style={{ display: cameraStarted ? "block" : "none" }}
+          />
+          {/* The canvas is always visible and will show live or captured images */}
+          <canvas
+            ref={canvasRef}
+            className={`w-full h-full ${cameraStarted ? "absolute" : ""}`}
+          ></canvas>
+
+          {/* This message is shown only when nothing else is */}
+          {!cameraStarted && !faceDescriptor && (
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-500 text-center">
               Click "Start Camera" to begin
             </div>
@@ -534,59 +1012,91 @@ const FaceAuth = () => {
           {!cameraStarted && (
             <button
               onClick={startVideo}
-              className="w-full py-3 rounded-lg font-bold text-white transition-colors duration-300 bg-blue-500 hover:bg-blue-600 shadow-md"
+              disabled={isModelsLoading}
+              className="w-full py-3 rounded-lg font-bold text-white transition-colors duration-300 bg-blue-500 hover:bg-blue-600 shadow-md disabled:bg-gray-400"
             >
-              Start Camera
+              {isModelsLoading ? "Loading Models..." : "Start Camera"}
             </button>
           )}
 
           {cameraStarted && (
             <button
               type="button"
-              onClick={capturePhoto}
+              onClick={detectAndCapture}
               className="w-full py-3 rounded-lg font-bold text-white transition-colors duration-300 bg-yellow-500 hover:bg-yellow-600 shadow-md"
             >
-              Capture Photo
+              Capture Face
             </button>
           )}
         </div>
 
-        {/* Form Inputs and Submit Button */}
-        <form onSubmit={handleAuth} className="w-full space-y-4 mt-4">
-          {authMode === "register" && (
-            <>
-              <input
-                type="text"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-                required
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
-                required
-              />
-            </>
-          )}
+        {/* Form Inputs, Submit Button, and Loading Spinner */}
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-6">
+            <svg
+              className="animate-spin h-10 w-10 text-gray-500"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+            <p className="mt-4 text-gray-600 font-medium">
+              {authMode === "register"
+                ? "Registering you..."
+                : "Logging you in..."}
+            </p>
+          </div>
+        ) : (
+          <form onSubmit={handleAuth} className="w-full space-y-4 mt-4">
+            {authMode === "register" && (
+              <>
+                <input
+                  type="text"
+                  placeholder="Username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                  required
+                />
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
+                  required
+                />
+              </>
+            )}
 
-          <button
-            type="submit"
-            className={`w-full py-3 rounded-lg font-bold text-white transition-colors duration-300 shadow-md mt-4
-              ${
-                authMode === "register"
-                  ? "bg-blue-600 hover:bg-blue-700"
-                  : "bg-green-600 hover:bg-green-700"
-              }
-            `}
-          >
-            {authMode === "register" ? "Register" : "Login"}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={!faceDescriptor}
+              className={`w-full py-3 rounded-lg font-bold text-white transition-colors duration-300 shadow-md mt-4
+                ${
+                  authMode === "register"
+                    ? "bg-blue-600 hover:bg-blue-700"
+                    : "bg-green-600 hover:bg-green-700"
+                } disabled:bg-gray-400
+              `}
+            >
+              {authMode === "register" ? "Register" : "Login"}
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );
